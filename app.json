@@ -17,10 +17,23 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationAlwaysUsageDescription":"This app uses location.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app uses location.",
+        "NSLocationWhenInUseUsageDescription": "This app uses location.",
+        "UIBackgroundModes": [
+          "location",
+          "fetch"
+        ]
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "android":{
+      "useNextNotificationsApi": true,
+      "permissions" :["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION", "ACCESS_BACKGROUND_LOCATION", "FOREGROUND_SERVICE"]
     }
   }
 }
