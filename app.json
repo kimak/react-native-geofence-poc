@@ -19,21 +19,28 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSLocationAlwaysUsageDescription":"This app uses location.",
+        "NSLocationAlwaysUsageDescription": "This app uses location.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "This app uses location.",
         "NSLocationWhenInUseUsageDescription": "This app uses location.",
         "UIBackgroundModes": [
           "location",
           "fetch"
         ]
-      }
+      },
+      "bundleIdentifier": "io.expo.client.geofence"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "android":{
+    "android": {
       "useNextNotificationsApi": true,
-      "permissions" :["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION", "ACCESS_BACKGROUND_LOCATION", "FOREGROUND_SERVICE"]
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE"
+      ],
+      "package": "io.expo.client.geofence"
     }
   }
 }

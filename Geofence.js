@@ -1,39 +1,46 @@
-import * as Notifications from 'expo-notifications';
-import * as Location from 'expo-location';
-import * as Permissions from 'expo-permissions';
-import * as TaskManager from 'expo-task-manager';
-import React from 'react';
-import { AppState, Platform, StyleSheet, Text, View, Button, TouchableOpacity } from 'react-native';
-import MapView from 'react-native-maps';
-import { MaterialIcons } from '@expo/vector-icons';
+import * as Notifications from "expo-notifications";
+import * as Location from "expo-location";
+import * as Permissions from "expo-permissions";
+import * as TaskManager from "expo-task-manager";
+import React from "react";
+import {
+  AppState,
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+  Button,
+  TouchableOpacity,
+} from "react-native";
+import MapView from "react-native-maps";
+import { MaterialIcons } from "@expo/vector-icons";
 
-
-const GEOFENCING_TASK = 'geofencing';
+const GEOFENCING_TASK = "geofencing";
 const REGION_RADIUSES = [30, 50, 75, 100, 150, 200];
 
-
 TaskManager.defineTask(GEOFENCING_TASK, async ({ data: { region } }) => {
-    const stateString = Location.GeofencingRegionState[region.state].toLowerCase();
-    const body = `You're ${stateString} a region with latitude: ${region.latitude}, longitude: ${
-      region.longitude
-    } and radius: ${region.radius}m`;
-    console.log(body)
-    await Notifications.scheduleNotificationAsync({
-    trigger:null,
-    content:{
-      title: 'Expo Geofencing',
+  const stateString = Location.GeofencingRegionState[
+    region.state
+  ].toLowerCase();
+  const body = `You're ${stateString} a region with latitude: ${region.latitude}, longitude: ${region.longitude} and radius: ${region.radius}m`;
+  console.log(body);
+  await Notifications.scheduleNotificationAsync({
+    trigger: null,
+    content: {
+      title: "Expo Geofencing",
       body,
       data: {
         ...region,
         notificationBody: body,
         notificationType: GEOFENCING_TASK,
       },
-    }});
+    },
   });
+});
 
 export default class GeofencingScreen extends React.Component {
   static navigationOptions = {
-    title: 'Geofencing',
+    title: "Geofencing",
   };
 
   mapViewRef = React.createRef();
@@ -47,14 +54,14 @@ export default class GeofencingScreen extends React.Component {
   };
 
   componentDidMount = async () => {
-    let { status } = await Permissions.askAsync(Permissions.LOCATION);
-    // const response = await Location.requestPermissionsAsync()
+    // let { status } = await Permissions.askAsync(Permissions.LOCATION);
+    const response = await Location.requestPermissionsAsync();
     // console.log("response ",response)
     // console.log("status ",status)
 
-    // if (response.status !== 'granted') {
-    if (status !== 'granted') {
-      AppState.addEventListener('change', this.handleAppStateChange);
+    if (response.status !== "granted") {
+      // if (status !== "granted") {
+      AppState.addEventListener("change", this.handleAppStateChange);
       this.setState({
         error:
           'Location permissions are required in order to use this feature. You can manually enable them at any time in the "Location Services" section of the Settings app.',
@@ -64,16 +71,20 @@ export default class GeofencingScreen extends React.Component {
       this.setState({ error: null });
     }
 
-    // const res = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
-    const res = await Location.getCurrentPositionAsync();
-    console.log("response ",res)
-    const { coords } = res
-    const isGeofencing = await Location.hasStartedGeofencingAsync(GEOFENCING_TASK);
+    const res = await Location.getCurrentPositionAsync({
+      accuracy: Location.Accuracy.High,
+    });
+    // const res = await Location.getCurrentPositionAsync();
+    console.log("response ", res);
+    const { coords } = res;
+    const isGeofencing = await Location.hasStartedGeofencingAsync(
+      GEOFENCING_TASK
+    );
     const geofencingRegions = await getSavedRegions();
 
     if (!isGeofencing) {
       alert(
-        'Tap on the map to select a region with chosen radius and then press `Start geofencing` to start getting geofencing notifications.'
+        "Tap on the map to select a region with chosen radius and then press `Start geofencing` to start getting geofencing notifications."
       );
     }
 
@@ -89,13 +100,13 @@ export default class GeofencingScreen extends React.Component {
     });
   };
 
-  handleAppStateChange = nextAppState => {
-    if (nextAppState !== 'active') {
+  handleAppStateChange = (nextAppState) => {
+    if (nextAppState !== "active") {
       return;
     }
 
     if (this.state.initialRegion) {
-      AppState.removeEventListener('change', this.handleAppStateChange);
+      AppState.removeEventListener("change", this.handleAppStateChange);
       return;
     }
 
@@ -115,9 +126,12 @@ export default class GeofencingScreen extends React.Component {
       await Location.stopGeofencingAsync(GEOFENCING_TASK);
       this.setState({ geofencingRegions: [] });
     } else {
-      await Location.startGeofencingAsync(GEOFENCING_TASK, this.state.geofencingRegions);
+      await Location.startGeofencingAsync(
+        GEOFENCING_TASK,
+        this.state.geofencingRegions
+      );
       alert(
-        'You will be receiving notifications when the device enters or exits from selected regions.'
+        "You will be receiving notifications when the device enters or exits from selected regions."
       );
     }
     this.setState({ isGeofencing: !this.state.isGeofencing });
@@ -125,7 +139,10 @@ export default class GeofencingScreen extends React.Component {
 
   shiftRegionRadius = () => {
     const index = REGION_RADIUSES.indexOf(this.state.newRegionRadius) + 1;
-    const radius = index < REGION_RADIUSES.length ? REGION_RADIUSES[index] : REGION_RADIUSES[0];
+    const radius =
+      index < REGION_RADIUSES.length
+        ? REGION_RADIUSES[index]
+        : REGION_RADIUSES[0];
 
     this.setState({ newRegionRadius: radius });
   };
@@ -181,13 +198,13 @@ export default class GeofencingScreen extends React.Component {
     const canToggle = this.canToggleGeofencing();
 
     if (canToggle) {
-      return this.state.isGeofencing ? 'Stop geofencing' : 'Start geofencing';
+      return this.state.isGeofencing ? "Stop geofencing" : "Start geofencing";
     }
-    return 'Select at least one region on the map';
+    return "Select at least one region on the map";
   }
 
   render() {
-    console.log("render")
+    console.log("render");
     if (this.state.error) {
       return <Text style={styles.errorText}>{this.state.error}</Text>;
     }
@@ -205,16 +222,19 @@ export default class GeofencingScreen extends React.Component {
           style={styles.mapView}
           initialRegion={this.state.initialRegion}
           onPress={this.onMapPress}
-          showsUserLocation>
+          showsUserLocation
+        >
           {this.renderRegions()}
         </MapView>
 
         <View style={styles.buttons} pointerEvents="box-none">
           <View style={styles.topButtons}>
             <View style={styles.buttonsColumn}>
-              <Button style={styles.button} title={`Radius: ${this.state.newRegionRadius}m`} onPress={this.shiftRegionRadius}>
-                
-              </Button>
+              <Button
+                style={styles.button}
+                title={`Radius: ${this.state.newRegionRadius}m`}
+                onPress={this.shiftRegionRadius}
+              ></Button>
             </View>
             <View style={styles.buttonsColumn}>
               <TouchableOpacity style={styles.button} onPress={this.centerMap}>
@@ -227,8 +247,8 @@ export default class GeofencingScreen extends React.Component {
             <Button
               title={this.getGeofencingButtonContent()}
               style={[styles.button, canToggle ? null : styles.disabledButton]}
-              onPress={this.toggleGeofencing}>
-            </Button>
+              onPress={this.toggleGeofencing}
+            ></Button>
           </View>
         </View>
       </View>
@@ -243,7 +263,7 @@ async function getSavedRegions() {
 }
 
 // if (Platform.OS !== 'android') {
-  
+
 // }
 
 /* Notifications.addListener(({ data, remote }) => {
@@ -261,41 +281,41 @@ const styles = StyleSheet.create({
   },
   buttons: {
     flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'space-between',
+    flexDirection: "column",
+    justifyContent: "space-between",
     padding: 10,
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     right: 0,
     bottom: 0,
     left: 0,
   },
   topButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   bottomButtons: {
-    flexDirection: 'column',
-    alignItems: 'flex-end',
+    flexDirection: "column",
+    alignItems: "flex-end",
   },
   buttonsColumn: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
+    flexDirection: "column",
+    alignItems: "flex-start",
   },
   button: {
     paddingVertical: 5,
     paddingHorizontal: 10,
     marginVertical: 5,
-    backgroundColor: 'red',
+    backgroundColor: "red",
     top: 20,
   },
   disabledButton: {
-    backgroundColor: 'gray',
+    backgroundColor: "gray",
     opacity: 0.8,
   },
   errorText: {
     fontSize: 15,
-    color: 'rgba(0,0,0,0.7)',
+    color: "rgba(0,0,0,0.7)",
     margin: 20,
   },
 });
